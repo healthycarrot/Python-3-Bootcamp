@@ -10,6 +10,7 @@ products_col = db["products"]
 
 def serialize_product(product):
     product["id"] = str(product["_id"])
+    # delete the _id column
     del product["_id"]
     return product
 

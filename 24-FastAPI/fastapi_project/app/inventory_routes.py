@@ -7,7 +7,7 @@ from app.api.inventory_api import (
     purchase_product
 )
 
-router = APIRouter(prefix="/products", tags=["Products"])
+router = APIRouter(prefix="/products", tags=["MongoDb - Products"])
 
 @router.post("/", status_code=201)
 def add_product(payload: dict):
