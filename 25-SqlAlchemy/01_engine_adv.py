@@ -21,9 +21,9 @@ engine = create_engine("sqlite:///some.db")
 # Demonstrate explicit transaction control
 # It will not commit the insert
 with engine.connect() as conn:
-    trans = conn.begin()
+    # trans = conn.begin()
     conn.execute(text("INSERT INTO department (name) VALUES ('Training')"))
-    trans.commit()
+    # trans.commit()
     # trans.rollback()
 
 with engine.connect() as conn:

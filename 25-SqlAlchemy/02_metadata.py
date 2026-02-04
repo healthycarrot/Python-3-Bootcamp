@@ -29,7 +29,7 @@ metadata = MetaData()
 # This defines a "user" table at the schema level.
 # No database calls happen here yet.
 user_table = Table(
-    "user",                 # Table name in DB
+    "users",                 # Table name in DB
     metadata,               # MetaData registry
     Column("id", Integer, primary_key=True),   # Primary key column
     Column("name", String),                     # Simple string column
@@ -114,7 +114,7 @@ addresses_table = Table(
     Column("id", Integer, primary_key=True),
     Column("email_address", String(100), nullable=False),
     # ForeignKey creates a relationship to user.id
-    Column("user_id", Integer, ForeignKey("user.id")),
+    Column("user_id", Integer, ForeignKey("users.id")),
 )
 
 # Emit CREATE TABLE for address
@@ -164,4 +164,36 @@ metadata.create_all(engine)
 
 metadata2 = MetaData()
 
-# SQ
+# SQLAlchemy 2.x way of reflecting tables
+# autoload=True is removed; use autoload_with
+user_reflected = Table(
+    "users",
+    metadata2,
+    autoload_with=engine
+)
+
+# Print reflected columns
+print(user_reflected.c)
+
+# Reflect whole database schema
+metadata3 = MetaData()
+metadata3.reflect(bind=engine)
+print(metadata3.tables.keys())
+
+
+# ===============================
+# Inspector
+# ===============================
+# Inspector provides database-level introspection utilities
+# Useful for migrations, debugging, and tooling.
+
+inspector = inspect(engine)
+
+# List all tables in the database
+inspector.get_table_names()
+
+# Get column details for a table
+inspector.get_columns("address")
+
+# Get foreign key details for a table
+inspector.get_foreign_keys("address")
