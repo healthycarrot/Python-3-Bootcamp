@@ -1,15 +1,22 @@
+# Demonstrates basic usage of SQLAlchemy Engine with SQLite
+# - Creates and connects to a SQLite database
+# - Creates tables and inserts data using raw SQL
+# - Executes queries and fetches results
+# - Shows transaction management and result handling
+
 from sqlalchemy import create_engine, text
 import os
 
-# Remove existing DB for a clean run
+# Remove existing database file for a clean run
 if os.path.exists("some.db"):
     os.remove("some.db")
 
-# Engine represents the DB + connection pool
+# Create an Engine object representing the SQLite database and connection pool
 engine = create_engine("sqlite:///some.db")
 
 # Create tables and insert data inside a transaction
 with engine.begin() as conn:
+    # Create 'employee' table
     conn.execute(text("""
         create table employee (
             emp_id integer primary key autoincrement,
@@ -17,10 +24,12 @@ with engine.begin() as conn:
         )
     """))
 
+    # Insert sample employees
     conn.execute(text("insert into employee(emp_name) values ('ed')"))
     conn.execute(text("insert into employee(emp_name) values ('jack')"))
     conn.execute(text("insert into employee(emp_name) values ('fred')"))
 
+    # Create 'employee_of_month' table
     conn.execute(text("""
         create table employee_of_month (
             emp_id integer primary key,
@@ -28,28 +37,28 @@ with engine.begin() as conn:
         )
     """))
 
-# Queries are executed via a Connection
+# Execute a parameterized SELECT query using a Connection
 with engine.connect() as conn:
     result = conn.execute(
         text("select emp_id, emp_name from employee where emp_id=:emp_id"),
         {"emp_id": 3}
     )
-
+    # Fetch one row from the result
     row = result.fetchone()
     print(row)
 
-# Result objects are iterable
+# Iterate over all rows in the 'employee' table
 with engine.connect() as conn:
     result = conn.execute(text("select * from employee"))
     for row in result:
         print(row)
 
-# fetchall() returns a list of rows
+# Fetch all rows at once using fetchall()
 with engine.connect() as conn:
     result = conn.execute(text("select * from employee"))
     print(result.fetchall())
 
-# Explicit transaction control
+# Insert into 'employee_of_month' table inside a transaction
 with engine.begin() as conn:
     conn.execute(
         text("insert into employee_of_month (emp_name) values (:emp_name)"),

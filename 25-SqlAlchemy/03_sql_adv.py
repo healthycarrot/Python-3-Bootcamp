@@ -1,13 +1,20 @@
-# Core Joins / Foreign Keys / Subqueries (SQLAlchemy 2.x)
+# Advanced SQL Operations with SQLAlchemy Core (2.x)
+# This script demonstrates:
+# - Table creation with foreign keys
+# - Data insertion
+# - Inner joins and foreign key joins
+# - Subqueries and scalar subqueries
+# - SELECT statements with joins and subqueries
 
 from sqlalchemy import (
     MetaData, Table, Column, String, Integer,
     ForeignKey, select, create_engine, func
 )
 
+# Create a metadata object to hold table definitions
 metadata = MetaData()
 
-# User table
+# Define 'user' table with id, username, fullname
 user_table = Table(
     "user",
     metadata,
@@ -16,7 +23,7 @@ user_table = Table(
     Column("fullname", String(50)),
 )
 
-# Address table
+# Define 'address' table with foreign key to 'user'
 address_table = Table(
     "address",
     metadata,
@@ -25,12 +32,13 @@ address_table = Table(
     Column("email_address", String(100), nullable=False),
 )
 
-# Create DB
+# Create an in-memory SQLite database and create tables
 engine = create_engine("sqlite://")
 metadata.create_all(engine)
 
-# Insert data (transaction required)
+# Insert sample data into both tables within a transaction
 with engine.begin() as conn:
+    # Insert users
     conn.execute(
         user_table.insert(),
         [
@@ -40,6 +48,7 @@ with engine.begin() as conn:
         ],
     )
 
+    # Insert addresses linked to users by user_id
     conn.execute(
         address_table.insert(),
         [
@@ -50,16 +59,18 @@ with engine.begin() as conn:
         ],
     )
 
-# Explicit join
+# --- Join Examples ---
+
+# Explicit inner join between user and address tables
 join_obj = user_table.join(
     address_table, user_table.c.id == address_table.c.user_id
 )
 print(join_obj)
 
-# FK-based join
+# Foreign key-based join (uses FK relationship)
 print(user_table.join(address_table))
 
-# SELECT from JOIN
+# SELECT all columns from both tables using join
 stmt = (
     select(user_table, address_table)
     .select_from(user_table.join(address_table))
@@ -68,7 +79,9 @@ stmt = (
 with engine.connect() as conn:
     print(conn.execute(stmt).fetchall())
 
-# Subquery example
+# --- Subquery Example ---
+
+# Subquery: count addresses per user
 subq = (
     select(
         address_table.c.user_id,
@@ -78,6 +91,7 @@ subq = (
     .subquery()
 )
 
+# SELECT username and address count using join with subquery
 stmt = (
     select(user_table.c.username, subq.c.count)
     .join(subq, user_table.c.id == subq.c.user_id)
@@ -87,13 +101,16 @@ stmt = (
 with engine.connect() as conn:
     print(conn.execute(stmt).fetchall())
 
-# Scalar subquery
+# --- Scalar Subquery Example ---
+
+# Scalar subquery: count addresses for each user
 scalar_stmt = (
     select(func.count(address_table.c.id))
     .where(user_table.c.id == address_table.c.user_id)
     .scalar_subquery()
 )
 
+# SELECT username and address count using scalar subquery
 stmt = select(user_table.c.username, scalar_stmt)
 
 with engine.connect() as conn:
