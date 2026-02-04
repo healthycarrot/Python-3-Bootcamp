@@ -15,6 +15,7 @@ if os.path.exists("some.db"):
 engine = create_engine("sqlite:///some.db")
 
 # Create tables and insert data inside a transaction
+# This auto commits at the end of the block
 with engine.begin() as conn:
     # Create 'employee' table
     conn.execute(text("""
