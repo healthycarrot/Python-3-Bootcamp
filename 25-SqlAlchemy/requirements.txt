@@ -1,0 +1,3 @@
+SQLAlchemy>=2.0.25
+Pygments>=2.17.2
+sliderepl==1.1
