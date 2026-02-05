@@ -82,7 +82,7 @@ class Address(Base):
 # ---------------------------------------------------------
 # Database setup
 # ---------------------------------------------------------
-engine = create_engine("sqlite://", echo=False)
+engine = create_engine("sqlite:///user2.db", echo=False)
 Base.metadata.create_all(engine)
 
 

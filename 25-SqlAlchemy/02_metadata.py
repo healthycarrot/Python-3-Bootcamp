@@ -165,3 +165,16 @@ metadata.create_all(engine)
 metadata2 = MetaData()
 
 # SQ
+
+
+user_reflected = Table(
+    "user",                # Table name to reflect
+    metadata2,             # New MetaData object
+    autoload_with=engine   # Engine to connect to DB
+)
+
+print(user_reflected.c)  # Print columns of the reflected table
+
+metadata3 = MetaData()
+metadata3.reflect(bind=engine)  # Reflect all tables in the DB
+print(metadata3.tables.keys())  # Print all table names in the DB

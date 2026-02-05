@@ -83,13 +83,15 @@ with Session(engine) as session:
             User(name="fred", fullname="Fred Flinstone"),
         ]
     )
-
+    session.commit()
     # Modify an existing object (marks it as dirty)
     ed_user.fullname = "Ed Jones"
-
+    # ed_user9 = User(name="Tatsu", fullname="Nishioka")
+    # session.add(ed_user9)
     # View pending and dirty objects
-    session.new
-    session.dirty
+    print("---------------")
+    print(session.new)
+    print(session.dirty)
 
     # -----------------------------------------------------
     # Step 6: Commit
